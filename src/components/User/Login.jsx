@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { loginAPI } from "../../APIServices/users/usersAPI";
 import AlertMessage from "../Alert/AlertMessage";
+import { create } from "../../APIServices/Api";
+
 
 const Login = () => {
     //navigate
@@ -29,15 +31,27 @@ const Login = () => {
             password: Yup.string().required("Password is required"),
         }),
         // submit
-        onSubmit: (values) => {
-            console.log(values);
-            userMutation.mutateAsync(values)
-                .then(() => {
-                    // redirect
-                    navigate("/");
-                })
-                .catch((err) => console.log(err));
+        onSubmit: async (values) => {
+            try {
+
+                console.log("Submitting login:", values);
+        
+                const response = await userMutation.mutateAsync(values); // Waits and captures response
+                console.log("Login response:", response); // 🔍 See backend response
+                
+                
+
+                await create("/sendOtp", { email: response.email });
+                localStorage.setItem("email", response.email);
+        
+                // Redirect
+                navigate("/verify", { state: {from: "signin" } });
+
+            } catch (err) {
+                console.error("Login failed:", err);
+            }
         },
+        
     });
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -125,7 +139,7 @@ const Login = () => {
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200"
                     >
-                        Sign Up
+                        Sign In
                     </button>
 
                     {/* Divider */}

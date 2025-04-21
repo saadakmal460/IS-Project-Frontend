@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { registerAPI } from "../../APIServices/users/usersAPI";
 import AlertMessage from "../Alert/AlertMessage";
+import { create } from "../../APIServices/Api";
 
 const Register = () => {
     //navigate
@@ -31,15 +32,25 @@ const Register = () => {
             password: Yup.string().required("Password is required"),
         }),
         // submit
-        onSubmit: (values) => {
-            console.log(values);
-            userMutation.mutateAsync(values)
-                .then(() => {
-                    // redirect
-                    navigate("/login");
-                })
-                .catch((err) => console.log(err));
+        onSubmit: async (values) => {
+            try {
+                console.log(values);
+                await userMutation.mutateAsync(values);  // Wait for registration
+        
+                // Save email
+                localStorage.setItem("email", values.email);
+        
+                // Send OTP
+                await create("/sendOtp", { email: values.email });
+        
+                // Navigate to verification page
+                navigate("/verify", { state: {from: "signup" } });
+
+            } catch (err) {
+                console.log(err);
+            }
         },
+        
     });
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
