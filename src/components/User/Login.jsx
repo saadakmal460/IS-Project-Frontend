@@ -40,8 +40,6 @@ const Login = () => {
                 console.log("Login response:", response); // 🔍 See backend response
                 
                 
-
-                await create("/sendOtp", { email: response.email });
                 localStorage.setItem("email", response.email);
         
                 // Redirect

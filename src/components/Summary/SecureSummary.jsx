@@ -35,54 +35,97 @@ const SecureSummary = () => {
     setSummary("");
 
     try {
+      // 1. Get backend's public key for encryption
       const { data: pemKey } = await axios.get("http://localhost:8000/public-key");
-      const publicKey = await importRSAPublicKey(pemKey);
+      const backendPublicKey = await importRSAPublicKey(pemKey);
 
+      // 2. Generate AES key and IV
       const aesKey = await window.crypto.subtle.generateKey(
         { name: "AES-GCM", length: 256 },
         true,
         ["encrypt", "decrypt"]
       );
-
       const iv = window.crypto.getRandomValues(new Uint8Array(12));
       const fileBuffer = await selectedDocument.arrayBuffer();
 
-      const encryptedFile = await window.crypto.subtle.encrypt(
+      // 3. Encrypt file using AES-GCM
+      const encryptedData = await window.crypto.subtle.encrypt(
         { name: "AES-GCM", iv },
         aesKey,
         fileBuffer
       );
 
+      // 4. Export AES key and encrypt with backend's public key
       const rawAES = await window.crypto.subtle.exportKey("raw", aesKey);
       const encryptedAESKey = await window.crypto.subtle.encrypt(
         { name: "RSA-OAEP" },
-        publicKey,
+        backendPublicKey,
         rawAES
       );
-
       const encryptedIV = await window.crypto.subtle.encrypt(
         { name: "RSA-OAEP" },
-        publicKey,
+        backendPublicKey,
         iv
       );
+      const authTag = encryptedData.slice(-16);
 
-      const authTag = encryptedFile.slice(-16);
+      // 5. Generate RSA key pair for signing
+      const rsaKeyPair = await window.crypto.subtle.generateKey(
+        {
+          name: "RSA-PSS",
+          modulusLength: 2048,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: "SHA-256",
+        },
+        true,
+        ["sign", "verify"]
+      );
 
+      const exportedRSAPublicKeyPEM = await exportRSAPublicKey(rsaKeyPair.publicKey);
+
+      // 6. Sign the encrypted data
+      const dataToSign = new Uint8Array([
+        ...new Uint8Array(encryptedData), // encrypted file
+        ...new Uint8Array(encryptedAESKey), // encrypted AES key
+        ...new Uint8Array(encryptedIV), // encrypted IV
+        ...new Uint8Array(authTag) // auth tag
+      ]);
+      
+      const signature = await window.crypto.subtle.sign(
+        {
+          name: "RSA-PSS",
+          saltLength: 32,
+        },
+        rsaKeyPair.privateKey,
+        dataToSign
+      );
+
+
+      // 7. Prepare FormData
       const formData = new FormData();
-      formData.append("file", new Blob([encryptedFile.slice(0, -16)]), selectedDocument.name);
+      formData.append("file", new Blob([encryptedData.slice(0, -16)]), selectedDocument.name);
+      formData.append("data", new Blob([encryptedData]), selectedDocument.name);
       formData.append("key", new Blob([encryptedAESKey]));
       formData.append("iv", new Blob([encryptedIV]));
       formData.append("auth_tag", new Blob([authTag]));
+      formData.append("signature", new Blob([signature]));
+      formData.append("publicKey", exportedRSAPublicKeyPEM);
       formData.append("captcha_token", captchaToken);
 
+
+      // 8. Send to backend
       const response = await axios.post("http://localhost:8000/summarize", formData);
+      console.log(response)
       setSummary(response.data.summary);
     } catch (err) {
+      console.error(err.message);
+      console.error("Error response:", err.response.data);
       setError("Error occurred while processing the document.");
     } finally {
       setIsLoading(false);
     }
   };
+
 
   async function importRSAPublicKey(pem) {
     const b64 = pem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\s/g, "");
@@ -95,6 +138,28 @@ const SecureSummary = () => {
       ["encrypt"]
     );
   }
+
+  async function exportRSAPublicKey(key) {
+    // Export the RSA public key in SPKI format (binary format)
+    const exported = await window.crypto.subtle.exportKey("spki", key);
+
+    // Convert the ArrayBuffer (binary data) to a string
+    const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
+
+    // Convert the string to base64
+    let exportedAsBase64 = btoa(exportedAsString);
+
+    // Fix base64 padding if necessary
+    const paddingNeeded = (4 - (exportedAsBase64.length % 4)) % 4;
+    exportedAsBase64 += '='.repeat(paddingNeeded);
+
+    // Format the base64 string in PEM format (with the appropriate headers and line breaks)
+    const pemFormattedKey = `-----BEGIN PUBLIC KEY-----\n${exportedAsBase64.match(/.{1,64}/g).join('\n')}\n-----END PUBLIC KEY-----`;
+
+    return pemFormattedKey;
+  }
+
+
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">

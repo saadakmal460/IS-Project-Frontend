@@ -40,9 +40,6 @@ const Register = () => {
                 // Save email
                 localStorage.setItem("email", values.email);
         
-                // Send OTP
-                await create("/sendOtp", { email: values.email });
-        
                 // Navigate to verification page
                 navigate("/verify", { state: {from: "signup" } });
 

@@ -9,6 +9,7 @@ import OTPVerification from './components/User/OTPScreen'
 import Summary from './components/Summary/Summary'
 import SecureSummary from './components/Summary/SecureSummary'
 import Captcha from './components/Captcha/Captacha'
+import LogsTable from './Admin/LogsTable'
 
 
 function App() {
@@ -21,7 +22,10 @@ function App() {
        <Route element={<Register />} path='/register' />
        <Route element={<OTPVerification />} path='/verify' />
 
-       <Route element={<SecureSummary />} path='/summerize' />
+       <Route element={<SecureSummary />} path='/summarize' />
+
+       <Route element={<LogsTable />} path='/admin/logs' />
+
 
        <Route element={<Captcha />} path='/cap' />
 
