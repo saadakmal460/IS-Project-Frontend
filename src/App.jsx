@@ -10,6 +10,7 @@ import Summary from './components/Summary/Summary'
 import SecureSummary from './components/Summary/SecureSummary'
 import Captcha from './components/Captcha/Captacha'
 import LogsTable from './Admin/LogsTable'
+import Home from './components/Home/Home'
 
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
   return (
     <BrowserRouter>
     <Routes>
-       <Route element={<h1>Home</h1>} path='/' />
+       <Route element={<Home/>} path='/' />
         <Route element={<Login />} path='/login' />
        <Route element={<Register />} path='/register' />
        <Route element={<OTPVerification />} path='/verify' />

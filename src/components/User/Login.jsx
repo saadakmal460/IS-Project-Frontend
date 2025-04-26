@@ -35,21 +35,21 @@ const Login = () => {
             try {
 
                 console.log("Submitting login:", values);
-        
+
                 const response = await userMutation.mutateAsync(values); // Waits and captures response
                 console.log("Login response:", response); // 🔍 See backend response
-                
-                
+
+
                 localStorage.setItem("email", response.email);
-        
+
                 // Redirect
-                navigate("/verify", { state: {from: "signin" } });
+                navigate("/verify", { state: { from: "signin" } });
 
             } catch (err) {
                 console.error("Login failed:", err);
             }
         },
-        
+
     });
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -148,33 +148,39 @@ const Login = () => {
                         type="button"
                         className="w-full flex items-center justify-center gap-3 py-3 border rounded-lg bg-white hover:bg-gray-100 transition duration-200"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            fill="none"
-                            viewBox="0 0 24 24"
+                        <a
+                            href="http://localhost:5000/api/v1/users/auth/google"
+                            className="h-14 inline-flex items-center justify-center gap-2 py-4 px-6 rounded-full bg-white w-full text-center border border-gray-100 shadow hover:bg-gray-50 focus:ring focus:ring-orange-200 transition duration-200"
+                            type="submit"
                         >
-                            <path
-                                fill="#4285F4"
-                                d="M22.5 12.227c0-.683-.061-1.343-.175-1.982H12v3.755h5.906a5.065 5.065 0 0 1-2.197 3.325v2.76h3.543c2.076-1.913 3.248-4.727 3.248-7.858z"
-                            />
-                            <path
-                                fill="#34A853"
-                                d="M12 23c2.91 0 5.352-.964 7.136-2.615l-3.543-2.76c-.982.657-2.23 1.042-3.593 1.042-2.758 0-5.09-1.86-5.922-4.366H2.43v2.738A11.998 11.998 0 0 0 12 23z"
-                            />
-                            <path
-                                fill="#FBBC04"
-                                d="M6.078 14.3A7.191 7.191 0 0 1 5.5 12c0-.796.137-1.563.378-2.3V6.962H2.43A11.996 11.996 0 0 0 0 12c0 1.934.464 3.765 1.278 5.379l4.8-3.079z"
-                            />
-                            <path
-                                fill="#EA4335"
-                                d="M12 4.754c1.584 0 3.002.547 4.122 1.62l3.093-3.093C17.348 1.092 14.91 0 12 0A11.998 11.998 0 0 0 2.43 6.961l4.8 3.079C6.91 7.86 9.242 4.754 12 4.754z"
-                            />
-                        </svg>
-                        <span className="text-sm font-medium text-gray-700">
-                            Sign up with Google
-                        </span>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    fill="#4285F4"
+                                    d="M22.5 12.227c0-.683-.061-1.343-.175-1.982H12v3.755h5.906a5.065 5.065 0 0 1-2.197 3.325v2.76h3.543c2.076-1.913 3.248-4.727 3.248-7.858z"
+                                />
+                                <path
+                                    fill="#34A853"
+                                    d="M12 23c2.91 0 5.352-.964 7.136-2.615l-3.543-2.76c-.982.657-2.23 1.042-3.593 1.042-2.758 0-5.09-1.86-5.922-4.366H2.43v2.738A11.998 11.998 0 0 0 12 23z"
+                                />
+                                <path
+                                    fill="#FBBC04"
+                                    d="M6.078 14.3A7.191 7.191 0 0 1 5.5 12c0-.796.137-1.563.378-2.3V6.962H2.43A11.996 11.996 0 0 0 0 12c0 1.934.464 3.765 1.278 5.379l4.8-3.079z"
+                                />
+                                <path
+                                    fill="#EA4335"
+                                    d="M12 4.754c1.584 0 3.002.547 4.122 1.62l3.093-3.093C17.348 1.092 14.91 0 12 0A11.998 11.998 0 0 0 2.43 6.961l4.8 3.079C6.91 7.86 9.242 4.754 12 4.754z"
+                                />
+                            </svg>
+                            <span className="text-sm font-medium text-gray-700">
+                                Sign up with Google
+                            </span>
+                        </a>
                     </button>
                 </form>
             </div>
