@@ -34,7 +34,7 @@ const Register = () => {
         // submit
         onSubmit: async (values) => {
             try {
-                console.log(values);
+                
                 await userMutation.mutateAsync(values);  // Wait for registration
 
                 // Save email
@@ -44,7 +44,7 @@ const Register = () => {
                 navigate("/verify", { state: { from: "signup" } });
 
             } catch (err) {
-                console.log(err);
+                console.error(err);
             }
         },
 

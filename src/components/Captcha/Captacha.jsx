@@ -5,7 +5,6 @@ const Captcha = () => {
   const [captchaVerified, setCaptchaVerified] = useState(false);
 
   const handleCaptchaChange = (value) => {
-    console.log("Captcha value:", value);
     setCaptchaVerified(!!value);
   };
 

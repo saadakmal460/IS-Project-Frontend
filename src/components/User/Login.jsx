@@ -6,11 +6,14 @@ import { useMutation } from "@tanstack/react-query";
 import { loginAPI } from "../../APIServices/users/usersAPI";
 import AlertMessage from "../Alert/AlertMessage";
 import { create } from "../../APIServices/Api";
+import { useDispatch } from "react-redux";
+import { signInSuccess } from "../../Redux/UserSlice";
 
 
 const Login = () => {
     //navigate
     const navigate = useNavigate();
+    const dispatch = useDispatch()
 
     // user mutation
     const userMutation = useMutation({
@@ -34,16 +37,18 @@ const Login = () => {
         onSubmit: async (values) => {
             try {
 
-                console.log("Submitting login:", values);
+                
 
                 const response = await userMutation.mutateAsync(values); // Waits and captures response
-                console.log("Login response:", response); // 🔍 See backend response
-
+                
 
                 localStorage.setItem("email", response.email);
 
                 // Redirect
+                
                 navigate("/verify", { state: { from: "signin" } });
+                
+                
 
             } catch (err) {
                 console.error("Login failed:", err);
@@ -51,6 +56,7 @@ const Login = () => {
         },
 
     });
+    
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
             <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg">

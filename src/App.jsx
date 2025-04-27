@@ -11,29 +11,57 @@ import SecureSummary from './components/Summary/SecureSummary'
 import Captcha from './components/Captcha/Captacha'
 import LogsTable from './Admin/LogsTable'
 import Home from './components/Home/Home'
-
+import GoogleSuccess from './components/Google/GoogleSucess'
+import ProtectedRoute from './ProtectedRoute'
+import NotFound from './components/NotFound/NotFound'
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; // import styles
 
 function App() {
 
   return (
-    <BrowserRouter>
-    <Routes>
-       <Route element={<Home/>} path='/' />
-        <Route element={<Login />} path='/login' />
-        <Route element={<Register />} path='/register' />
-        <Route element={<OTPVerification />} path='/verify' />
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
-        <Route element={<SecureSummary />} path='/summarize' />
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Home />} path='/' />
+          <Route element={<Login />} path='/login' />
+          <Route element={<Register />} path='/register' />
+          <Route element={<OTPVerification />} path='/verify' />
 
-        <Route element={<LogsTable />} path='/admin/logs' />
+
+          <Route element={
+            <ProtectedRoute>
+              <SecureSummary />
+            </ProtectedRoute>
+          } path='/summarize' />
+
+          <Route element={
+            <ProtectedRoute requiredRole='admin'>
+              <LogsTable />
+            </ProtectedRoute>
+          } path='/admin/logs' />
 
 
-        <Route element={<Captcha />} path='/cap' />
+          <Route element={<GoogleSuccess />} path='/success' />
+
+          <Route element={<NotFound />} path='/not-found' />
 
 
-
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 

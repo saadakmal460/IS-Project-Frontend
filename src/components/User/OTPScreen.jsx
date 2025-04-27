@@ -91,12 +91,19 @@ export default function OTPVerification() {
             } else {
                 const response = await create("/loginOtp", { email, otp: otpString });
                 if (response.status === 200) {
+                   
+                    
                     dispatch(signInSuccess(response.data));
-                    // toast.success('Account created sucessfully. Please signin to continue');
+                    toast.success('OTP Verified');
                     setLoading(false);
                     localStorage.removeItem("email");
 
-                    navigate("/summarize");
+                    if(response.data.user.user_role == 'admin'){
+                    navigate("/admin/logs");
+                    }else{
+                        navigate("/summarize");
+                    }
+                    
                 } else {
                     setLoading(false);
                     toast.error(response.data);
@@ -104,7 +111,7 @@ export default function OTPVerification() {
             }
         } catch (error) {
             setLoading(false);
-            dispatch(signInFailure(err.message || "An unexpected error occurred"));
+            dispatch(signInFailure(error.message || "An unexpected error occurred"));
             console.error("Error verifying OTP:", error);
             toast.error(error.message || "Something went wrong. Please try again.");
         }

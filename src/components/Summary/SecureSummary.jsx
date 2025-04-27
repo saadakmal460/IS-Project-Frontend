@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { signInSuccess } from "../../Redux/UserSlice";
 
 const SecureSummary = () => {
+  
   const { data } = useSelector((state) => state.user);
 
 
@@ -128,7 +130,7 @@ const SecureSummary = () => {
         Authorization: `Bearer ${data.token}`,
       }}
     );
-      console.log(response)
+
       setSummary(response.data.summary);
     } catch (err) {
       console.error(err.message);
@@ -176,7 +178,7 @@ const SecureSummary = () => {
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">
-      <h1 className="text-4xl font-semibold text-center text-blue-600 mb-6">Zero-Trust Document Summarizer</h1>
+      <h1 className="text-4xl font-semibold text-center text-blue-600 mb-6">Document Summarizer</h1>
 
       <div className="mb-4">
         <label htmlFor="fileInput" className="block text-lg font-medium text-gray-700 mb-2">
