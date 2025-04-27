@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 export default function LogsTable() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data } = useSelector((state) => state.user);
 
   // Fetch logs data when the component mounts
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         // Replace with your API endpoint to fetch logs
-        const response = await axios.get('http://localhost:5000/api/security/getLogs');
+        const response = await axios.get('http://localhost:5000/api/security/getLogs', {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        });
         setLogs(response.data); // Assuming response contains the logs data
       } catch (error) {
         console.error('Error fetching logs:', error);
@@ -26,7 +32,7 @@ export default function LogsTable() {
   const handleRemoveUser = async (ip) => {
     try {
       // Replace with your API endpoint to remove the user
-      const payLoad = { ipAddress:ip , reason:"Suspecious Activity" }
+      const payLoad = { ipAddress: ip, reason: "Suspecious Activity" }
       console.log(payLoad)
       await axios.post(`http://localhost:5000/api/security/block-ip`, payLoad);
       // Remove the user from the table after successful removal
@@ -44,14 +50,16 @@ export default function LogsTable() {
     { field: 'isSuspicious', headerName: 'Suspecious', width: 250 },
 
 
-    { field: 'action', headerName: 'Action', width: 150, renderCell: (params) => (
-      <button
-        onClick={() => handleRemoveUser(params.row.userIp)}
-        className="bg-red-500 text-white  px-4 rounded-md hover:bg-red-600"
-      >
-        Block IP
-      </button>
-    )}
+    {
+      field: 'action', headerName: 'Action', width: 150, renderCell: (params) => (
+        <button
+          onClick={() => handleRemoveUser(params.row.userIp)}
+          className="bg-red-500 text-white  px-4 rounded-md hover:bg-red-600"
+        >
+          Block IP
+        </button>
+      )
+    }
   ];
 
   return (
@@ -65,7 +73,7 @@ export default function LogsTable() {
             <DataGrid
               rows={logs}
               columns={columns}
-              getRowId={(row) => row._id} 
+              getRowId={(row) => row._id}
               pageSize={5}
               rowsPerPageOptions={[5]}
               checkboxSelection

@@ -96,7 +96,7 @@ export default function OTPVerification() {
                     setLoading(false);
                     localStorage.removeItem("email");
 
-                    navigate("/summerize");
+                    navigate("/summarize");
                 } else {
                     setLoading(false);
                     toast.error(response.data);

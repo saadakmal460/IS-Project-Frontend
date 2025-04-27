@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useSelector } from "react-redux";
 
 const SecureSummary = () => {
+  const { data } = useSelector((state) => state.user);
+
+
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +40,11 @@ const SecureSummary = () => {
 
     try {
       // 1. Get backend's public key for encryption
-      const { data: pemKey } = await axios.get("http://localhost:8000/public-key");
+      const { data: pemKey } = await axios.get("http://localhost:5000/api/crypto/public-key", {
+        headers: {
+          Authorization: `Bearer ${data.token}`,
+        }
+      });
       const backendPublicKey = await importRSAPublicKey(pemKey);
 
       // 2. Generate AES key and IV
@@ -90,7 +98,7 @@ const SecureSummary = () => {
         ...new Uint8Array(encryptedIV), // encrypted IV
         ...new Uint8Array(authTag) // auth tag
       ]);
-      
+
       const signature = await window.crypto.subtle.sign(
         {
           name: "RSA-PSS",
@@ -100,9 +108,11 @@ const SecureSummary = () => {
         dataToSign
       );
 
+      const ext = selectedDocument.name.split('.').pop()
 
       // 7. Prepare FormData
       const formData = new FormData();
+      formData.append("file_extension", ext);
       formData.append("file", new Blob([encryptedData.slice(0, -16)]), selectedDocument.name);
       formData.append("data", new Blob([encryptedData]), selectedDocument.name);
       formData.append("key", new Blob([encryptedAESKey]));
@@ -114,7 +124,10 @@ const SecureSummary = () => {
 
 
       // 8. Send to backend
-      const response = await axios.post("http://localhost:8000/summarize", formData);
+      const response = await axios.post("http://localhost:5000/api/model/summarize", formData , { headers: {
+        Authorization: `Bearer ${data.token}`,
+      }}
+    );
       console.log(response)
       setSummary(response.data.summary);
     } catch (err) {

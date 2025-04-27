@@ -14,25 +14,25 @@ import Home from './components/Home/Home'
 
 
 function App() {
- 
+
   return (
     <BrowserRouter>
     <Routes>
        <Route element={<Home/>} path='/' />
         <Route element={<Login />} path='/login' />
-       <Route element={<Register />} path='/register' />
-       <Route element={<OTPVerification />} path='/verify' />
+        <Route element={<Register />} path='/register' />
+        <Route element={<OTPVerification />} path='/verify' />
 
-       <Route element={<SecureSummary />} path='/summarize' />
+        <Route element={<SecureSummary />} path='/summarize' />
 
-       <Route element={<LogsTable />} path='/admin/logs' />
-
-
-       <Route element={<Captcha />} path='/cap' />
+        <Route element={<LogsTable />} path='/admin/logs' />
 
 
+        <Route element={<Captcha />} path='/cap' />
 
-    </Routes>
+
+
+      </Routes>
     </BrowserRouter>
   )
 }
